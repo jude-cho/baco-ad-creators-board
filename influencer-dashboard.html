@@ -371,6 +371,7 @@ function checkPw() {
   if(val === 'baco2026!@') {
     sessionStorage.setItem('baco_auth','1');
     document.getElementById('pwScreen').style.display='none';
+    startApp();
   } else {
     document.getElementById('pwErr').textContent='비밀번호가 올바르지 않습니다';
     document.getElementById('pwInput').value='';
@@ -379,6 +380,9 @@ function checkPw() {
 }
 if(sessionStorage.getItem('baco_auth')==='1') {
   document.getElementById('pwScreen').style.display='none';
+  startApp();
+} else {
+  render();
 }
 
 // ── Gradient pool for avatars ──
@@ -813,7 +817,21 @@ function exportData() {
   a.download = 'influencer-data.json';
   a.click();
   URL.revokeObjectURL(url);
-  toast('⬇ influencer-data.json 저장됨');
+  toast('⬇ 저장 완료 → GitHub에 influencer-data.json도 업로드하세요');
+}
+
+async function loadRemoteData() {
+  try {
+    const res = await fetch('./influencer-data.json?_=' + Date.now());
+    if(!res.ok) return;
+    const data = await res.json();
+    if(data.batches && data.influencers) { D = data; save(); }
+  } catch(e) {}
+}
+
+async function startApp() {
+  await loadRemoteData();
+  render();
 }
 
 function openImport() {
