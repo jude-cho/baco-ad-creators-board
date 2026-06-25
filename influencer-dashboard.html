@@ -1,0 +1,862 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<title>인플루언서 견적 대시보드</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#f8fafc;--surface:#fff;--surface2:#f1f5f9;--border:#e2e8f0;
+  --text:#0f172a;--text2:#475569;--text3:#94a3b8;
+  --primary:#6366f1;--primary-d:#4f46e5;
+  --green:#10b981;--yellow:#f59e0b;--red:#ef4444;--blue:#3b82f6;
+}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+
+/* ── Header ── */
+.hd{background:var(--surface);border-bottom:1px solid var(--border);padding:14px 28px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;gap:12px}
+.hd h1{font-size:18px;font-weight:800;letter-spacing:-0.3px}
+.hd-sub{font-size:12px;color:var(--text3);margin-top:1px}
+.hd-right{display:flex;gap:8px;flex-shrink:0}
+
+/* ── Buttons ── */
+.btn{padding:8px 16px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;border:none;transition:.15s;font-family:inherit}
+.btn-p{background:var(--primary);color:#fff}.btn-p:hover{background:var(--primary-d)}
+.btn-s{background:var(--surface2);color:var(--text2);border:1px solid var(--border)}.btn-s:hover{background:var(--border)}
+.btn-sm{padding:5px 11px;font-size:12px}
+.btn-ico{background:none;border:none;cursor:pointer;padding:5px 8px;border-radius:6px;color:var(--text3);font-size:15px}.btn-ico:hover{background:var(--surface2);color:var(--text)}
+
+/* ── Main ── */
+.main{padding:22px 28px;max-width:1440px;margin:0 auto}
+
+/* ── Batch tabs ── */
+.tabs{display:flex;gap:6px;align-items:center;margin-bottom:20px;flex-wrap:wrap}
+.tab{padding:5px 15px;border-radius:20px;font-size:12px;font-weight:600;cursor:pointer;border:1.5px solid var(--border);background:var(--surface);color:var(--text2);transition:.15s}
+.tab.on{background:var(--primary);border-color:var(--primary);color:#fff}
+.tab-add{padding:5px 12px;border-radius:20px;font-size:12px;border:1.5px dashed var(--border);background:none;color:var(--text3);cursor:pointer;font-family:inherit}
+.tab-add:hover{border-color:var(--primary);color:var(--primary)}
+
+/* ── Stats ── */
+.stats{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:12px;margin-bottom:22px}
+.stat{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:14px 18px}
+.stat-l{font-size:11px;color:var(--text3);margin-bottom:3px}
+.stat-v{font-size:22px;font-weight:800}
+.stat-s{font-size:11px;color:var(--text3);margin-top:2px}
+
+/* ── Card grid ── */
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(360px,1fr));gap:18px}
+
+/* ── Card ── */
+.card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:18px;transition:box-shadow .2s}
+.card:hover{box-shadow:0 4px 20px rgba(0,0,0,.07)}
+.ch{display:flex;align-items:flex-start;gap:12px;margin-bottom:14px}
+.av{width:46px;height:46px;border-radius:11px;display:flex;align-items:center;justify-content:center;font-size:17px;font-weight:800;color:#fff;flex-shrink:0;overflow:hidden}
+.av img{width:100%;height:100%;object-fit:cover}
+.cn{flex:1}
+.cn-name{font-size:16px;font-weight:800;line-height:1.2}
+.cn-name a{color:inherit;text-decoration:none;border-bottom:1.5px dashed var(--border);padding-bottom:1px;transition:.15s}
+.cn-name a:hover{color:var(--primary);border-bottom-color:var(--primary)}
+.bdg-link{text-decoration:none;transition:.15s;display:inline-block}
+.bdg-link:hover{opacity:.7;transform:scale(1.08)}
+.cn-agency{font-size:11px;color:var(--text3);margin-top:2px}
+.badges{display:flex;gap:4px;flex-wrap:wrap;margin-top:5px}
+.bdg{padding:2px 7px;border-radius:10px;font-size:10px;font-weight:700}
+.b-ig{background:#fce7f3;color:#db2777}
+.b-tk{background:#f0fdf4;color:#15803d}
+.b-yt{background:#fef2f2;color:#dc2626}
+.b-batch{background:#eff6ff;color:#2563eb}
+.b-vat-x{background:#fef3c7;color:#b45309}
+.b-vat-o{background:#f0fdf4;color:#15803d}
+.b-vat-3{background:#faf5ff;color:#7c3aed}
+.ca{display:flex;gap:2px;margin-left:auto}
+
+/* ── Price rows ── */
+.psec{margin-bottom:10px}
+.ptitle{font-size:10px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:5px}
+.pr{display:flex;align-items:center;justify-content:space-between;padding:6px 10px;background:var(--surface2);border-radius:7px;margin-bottom:3px}
+.pr-hl{background:linear-gradient(135deg,#eff6ff,#f5f3ff);border:1px solid #c7d2fe}
+.pr-l{font-size:12px;color:var(--text2)}
+.pr-note{font-size:10px;color:var(--text3)}
+.pr-a{font-size:14px;font-weight:800;color:var(--text)}
+.pr-hl .pr-a{color:var(--primary);font-size:15px}
+
+.div{height:1px;background:var(--border);margin:10px 0}
+
+.inc-exc{font-size:11px;color:var(--text2);line-height:1.6}
+.ic{color:var(--green);font-weight:700}
+.ec{color:var(--red);font-weight:700}
+
+.note-box{background:#fffbeb;border:1px solid #fde68a;border-radius:8px;padding:7px 10px;font-size:11px;color:var(--text2);line-height:1.6}
+
+/* ── Modal ── */
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.45);backdrop-filter:blur(4px);z-index:1000;display:none;align-items:center;justify-content:center}
+.overlay.show{display:flex}
+.modal{background:var(--surface);border-radius:18px;padding:26px;width:90%;max-width:580px;max-height:92vh;overflow-y:auto}
+.mh{display:flex;align-items:center;justify-content:space-between;margin-bottom:22px}
+.mt{font-size:17px;font-weight:800}
+
+.fg{margin-bottom:14px}
+.fl{font-size:12px;font-weight:700;color:var(--text2);margin-bottom:5px;display:block}
+.fi{width:100%;padding:8px 11px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;outline:none;transition:.15s;font-family:inherit;background:var(--surface)}
+.fi:focus{border-color:var(--primary)}
+.fr{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+
+/* ── Dropzone ── */
+.dz{border:2px dashed var(--border);border-radius:12px;padding:28px;text-align:center;cursor:pointer;transition:.15s;background:var(--surface2)}
+.dz:hover,.dz.over{border-color:var(--primary);background:#eff6ff}
+.dz-ico{font-size:28px;margin-bottom:6px}
+.dz-t{font-size:13px;color:var(--text2)}
+.dz-s{font-size:11px;color:var(--text3);margin-top:3px}
+.upv{display:none}
+.upv img{max-width:100%;border-radius:8px;max-height:180px;object-fit:contain}
+
+/* ── Loading ── */
+.lbar{height:3px;background:linear-gradient(90deg,var(--primary),#8b5cf6);border-radius:2px;animation:ld 1.5s ease-in-out infinite;display:none;margin-top:8px}
+@keyframes ld{0%{width:0;opacity:1}60%{width:80%;opacity:.8}100%{width:100%;opacity:0}}
+.spin{width:14px;height:14px;border:2px solid #fff4;border-top-color:#fff;border-radius:50%;animation:sp .6s linear infinite;display:inline-block;vertical-align:middle;margin-right:5px}
+@keyframes sp{to{transform:rotate(360deg)}}
+
+/* ── Toast ── */
+.toast{position:fixed;bottom:22px;right:22px;background:#1e293b;color:#fff;padding:11px 18px;border-radius:10px;font-size:13px;z-index:9999;transform:translateY(80px);opacity:0;transition:.3s}
+.toast.show{transform:translateY(0);opacity:1}
+
+/* ── Empty ── */
+.empty{text-align:center;padding:56px;color:var(--text3);grid-column:1/-1}
+.empty-ico{font-size:40px;margin-bottom:12px}
+
+@media(max-width:700px){
+  .main{padding:14px}.hd{padding:12px 14px}.grid{grid-template-columns:1fr}.fr{grid-template-columns:1fr}
+}
+
+</style>
+</head>
+<body>
+
+<div class="hd">
+  <div>
+    <h1>📊 인플루언서 견적 대시보드</h1>
+    <div class="hd-sub" id="hdSub">바닐라코 · 릴스 광고 소재</div>
+  </div>
+  <div class="hd-right">
+    <button class="btn btn-s" onclick="exportData()">⬇ 내보내기</button>
+    <button class="btn btn-s" onclick="openImport()">⬆ 가져오기</button>
+    <button class="btn btn-s" onclick="openSettings()">⚙️ 설정</button>
+    <button class="btn btn-p" onclick="openAdd()">+ 견적 추가</button>
+  </div>
+</div>
+
+<div class="main">
+  <div class="tabs" id="tabs">
+    <div class="tab on" onclick="selBatch('all')">전체</div>
+    <button class="tab-add" onclick="addBatch()">+ 배치 추가</button>
+  </div>
+  <div class="stats" id="stats"></div>
+  <div class="grid" id="grid"></div>
+</div>
+
+<!-- Add/Edit Modal -->
+<div class="overlay" id="addModal">
+  <div class="modal">
+    <div class="mh">
+      <div class="mt" id="mTitle">견적 추가</div>
+      <button class="btn-ico" onclick="closeAdd()">✕</button>
+    </div>
+
+    <div class="fg">
+      <label class="fl">📸 스크린샷 업로드 → 자동 분석</label>
+      <div class="dz" id="dz"
+           onclick="document.getElementById('imgIn').click()"
+           ondragover="dzOver(event)" ondragleave="dzLeave(event)" ondrop="dzDrop(event)">
+        <div class="dz-ico">🖼️</div>
+        <div class="dz-t">이미지를 드래그하거나 클릭해서 업로드</div>
+        <div class="dz-s">PNG · JPG · Claude AI 자동 분석 지원</div>
+      </div>
+      <div class="upv" id="upv">
+        <img id="prevImg" src="" alt="">
+        <div style="margin-top:8px;display:flex;gap:8px;align-items:center">
+          <button class="btn btn-p btn-sm" id="anaBtn" onclick="analyze()">🔍 자동 분석</button>
+          <button class="btn btn-s btn-sm" onclick="clearImg()">이미지 제거</button>
+        </div>
+        <div class="lbar" id="lbar"></div>
+        <div id="lbarTxt" style="font-size:11px;color:var(--text3);margin-top:3px;display:none">Claude AI 분석 중...</div>
+      </div>
+      <input type="file" id="imgIn" accept="image/*" style="display:none" onchange="imgFile(event)">
+    </div>
+
+    <div class="fr">
+      <div class="fg">
+        <label class="fl">인플루언서 이름 *</label>
+        <input class="fi" id="f_name" placeholder="예: 조아유">
+      </div>
+      <div class="fg">
+        <label class="fl">배치 *</label>
+        <select class="fi" id="f_batch"></select>
+      </div>
+    </div>
+    <div class="fg">
+      <label class="fl">소속사 / 매니저</label>
+      <input class="fi" id="f_agency" placeholder="예: 고마난엔터테인먼트">
+    </div>
+    <div class="fg">
+      <label class="fl">플랫폼</label>
+      <div style="display:flex;gap:14px;margin-top:5px">
+        <label style="font-size:12px;display:flex;align-items:center;gap:4px;cursor:pointer"><input type="checkbox" id="p_ig"> Instagram</label>
+        <label style="font-size:12px;display:flex;align-items:center;gap:4px;cursor:pointer"><input type="checkbox" id="p_tk"> TikTok</label>
+        <label style="font-size:12px;display:flex;align-items:center;gap:4px;cursor:pointer"><input type="checkbox" id="p_yt"> YouTube</label>
+      </div>
+    </div>
+    <div class="fg">
+      <label class="fl">채널 링크 <span style="font-weight:400;color:var(--text3)">(선택 · 이름/배지 클릭 시 이동)</span></label>
+      <div style="display:flex;flex-direction:column;gap:6px;margin-top:2px">
+        <input class="fi" id="f_ig_url" placeholder="📷 Instagram  예) https://instagram.com/username">
+        <input class="fi" id="f_tk_url" placeholder="🎵 TikTok  예) https://tiktok.com/@username">
+        <input class="fi" id="f_yt_url" placeholder="▶ YouTube  예) https://youtube.com/@username">
+      </div>
+    </div>
+    <div class="fr">
+      <div class="fg">
+        <label class="fl">릴스 기본 단가</label>
+        <input class="fi" id="f_price" placeholder="예: 70만원 / $16,000">
+      </div>
+      <div class="fg">
+        <label class="fl">단가 조건</label>
+        <input class="fi" id="f_pnote" placeholder="예: 3.3% 공제 후 실수령">
+      </div>
+    </div>
+    <div class="fr">
+      <div class="fg">
+        <label class="fl">2차 활용 1개월</label>
+        <input class="fi" id="f_s1m" placeholder="예: +10만원">
+      </div>
+      <div class="fg">
+        <label class="fl">2차 활용 3개월</label>
+        <input class="fi" id="f_s3m" placeholder="예: +30만원">
+      </div>
+    </div>
+    <div class="fg">
+      <label class="fl">패키지 / 기타 상품 <span style="font-weight:400;color:var(--text3)">(여러 개는 | 로 구분)</span></label>
+      <input class="fi" id="f_pkg" placeholder="예: TikTok×IG 패키지 $18,000 | TVC 3개월 2,000만원">
+    </div>
+    <div class="fg">
+      <label class="fl">VAT</label>
+      <select class="fi" id="f_vat">
+        <option value="">미기재</option>
+        <option value="included">포함</option>
+        <option value="excluded">별도</option>
+        <option value="3.3%">3.3% 공제 (원천징수)</option>
+      </select>
+    </div>
+    <div class="fr">
+      <div class="fg">
+        <label class="fl">포함 항목</label>
+        <textarea class="fi" id="f_inc" rows="2" placeholder="포함된 항목"></textarea>
+      </div>
+      <div class="fg">
+        <label class="fl">미포함 항목</label>
+        <textarea class="fi" id="f_exc" rows="2" placeholder="미포함 항목"></textarea>
+      </div>
+    </div>
+    <div class="fg">
+      <label class="fl">특이사항 / 비고</label>
+      <textarea class="fi" id="f_notes" rows="2" placeholder="추가 조건, 제한사항, 안내사항 등"></textarea>
+    </div>
+
+    <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:6px">
+      <button class="btn btn-s" onclick="closeAdd()">취소</button>
+      <button class="btn btn-p" onclick="saveInf()">저장</button>
+    </div>
+  </div>
+</div>
+
+<!-- Import Modal -->
+<div class="overlay" id="impModal">
+  <div class="modal" style="max-width:500px">
+    <div class="mh">
+      <div class="mt">⬆ 데이터 가져오기</div>
+      <button class="btn-ico" onclick="closeImport()">✕</button>
+    </div>
+
+    <div style="display:flex;gap:0;margin-bottom:18px;border:1.5px solid var(--border);border-radius:10px;overflow:hidden">
+      <button id="imp-tab-file" onclick="switchImpTab('file')"
+        style="flex:1;padding:9px;font-size:13px;font-weight:600;cursor:pointer;border:none;background:var(--primary);color:#fff;font-family:inherit">
+        📁 파일로 가져오기
+      </button>
+      <button id="imp-tab-url" onclick="switchImpTab('url')"
+        style="flex:1;padding:9px;font-size:13px;font-weight:600;cursor:pointer;border:none;background:var(--surface2);color:var(--text2);font-family:inherit">
+        🔗 URL로 가져오기
+      </button>
+    </div>
+
+    <div id="imp-panel-file">
+      <div class="dz" onclick="document.getElementById('impFileIn').click()" style="padding:22px">
+        <div class="dz-ico">📂</div>
+        <div class="dz-t">influencer-data.json 파일 선택</div>
+        <div class="dz-s">내보내기로 저장한 JSON 파일</div>
+      </div>
+      <input type="file" id="impFileIn" accept=".json,application/json" style="display:none" onchange="importFromFile(event)">
+    </div>
+
+    <div id="imp-panel-url" style="display:none">
+      <div class="fg">
+        <label class="fl">GitHub Raw URL 붙여넣기</label>
+        <input class="fi" id="imp_url" placeholder="https://raw.githubusercontent.com/...">
+        <div style="font-size:11px;color:var(--text3);margin-top:6px;line-height:1.6">
+          GitHub 업로드 후 → 파일 클릭 → <b>Raw</b> 버튼 → URL 복사
+        </div>
+      </div>
+      <button class="btn btn-p" style="width:100%" onclick="importFromUrl()">불러오기</button>
+    </div>
+
+    <div style="margin-top:16px;background:#fef3c7;border:1px solid #fde68a;border-radius:8px;padding:10px 12px;font-size:12px;color:#92400e;line-height:1.6">
+      ⚠️ 가져오기 시 현재 데이터가 <b>교체</b>됩니다. 먼저 내보내기로 백업을 권장합니다.
+    </div>
+  </div>
+</div>
+
+<!-- Settings Modal -->
+<div class="overlay" id="setModal">
+  <div class="modal" style="max-width:440px">
+    <div class="mh">
+      <div class="mt">⚙️ 설정</div>
+      <button class="btn-ico" onclick="closeSettings()">✕</button>
+    </div>
+    <div class="fg">
+      <label class="fl">Anthropic API Key</label>
+      <input type="password" class="fi" id="s_key" placeholder="sk-ant-...">
+      <div style="font-size:11px;color:var(--text3);margin-top:5px">스크린샷 자동 분석에 사용됩니다. 브라우저 로컬스토리지에만 저장됩니다.</div>
+    </div>
+    <div class="fg">
+      <label class="fl">브랜드명</label>
+      <input class="fi" id="s_brand" placeholder="예: 바닐라코">
+    </div>
+    <div style="display:flex;gap:8px;justify-content:flex-end">
+      <button class="btn btn-s" onclick="closeSettings()">취소</button>
+      <button class="btn btn-p" onclick="saveSettings()">저장</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ── Gradient pool for avatars ──
+const GRADS = [
+  'linear-gradient(135deg,#6366f1,#8b5cf6)',
+  'linear-gradient(135deg,#ec4899,#f43f5e)',
+  'linear-gradient(135deg,#14b8a6,#06b6d4)',
+  'linear-gradient(135deg,#f59e0b,#f97316)',
+  'linear-gradient(135deg,#84cc16,#22c55e)',
+  'linear-gradient(135deg,#3b82f6,#6366f1)',
+  'linear-gradient(135deg,#e879f9,#a855f7)',
+  'linear-gradient(135deg,#f43f5e,#fb923c)',
+];
+
+// ── Default data ──
+const DEFAULTS = {
+  batches: ['6월_2차'],
+  influencers: [
+    {
+      id:'i1', batch:'6월_2차', name:'조아유', agency:'',
+      platforms:['Instagram'],
+      ig_url:'', tk_url:'', yt_url:'',
+      price:'70만원', pnote:'3.3% 공제 후 실수령액',
+      s1m:'+10만원', s3m:'+30만원', pkg:'',
+      vat:'3.3%',
+      inc:'인스타그램 순수 업로드, 협업 광고(공동작업자) 세팅',
+      exc:'브랜드 직접 광고 집행, 클린본 2차 활용',
+      notes:'여름 시즌 일정 유연 조율 가능',
+      photo:null
+    },
+    {
+      id:'i2', batch:'6월_2차', name:'미확인', agency:'고마난엔터테인먼트',
+      platforms:['Instagram'],
+      ig_url:'', tk_url:'', yt_url:'',
+      price:'950만원', pnote:'VAT 별도 · 화이트쿠션 콘텐츠 기준',
+      s1m:'메타 광고 1,000만원', s3m:'메타 광고 2,850만원', pkg:'',
+      vat:'excluded',
+      inc:'', exc:'',
+      notes:'인플루언서명 미확인 — 담당자 재확인 필요',
+      photo:null
+    },
+    {
+      id:'i3', batch:'6월_2차', name:'민데이', agency:'',
+      platforms:['Instagram','TikTok'],
+      ig_url:'', tk_url:'', yt_url:'',
+      price:'$16,000 (IG 전용)', pnote:'국내 사업자 VAT 10% 별도',
+      s1m:'$2,000 / 30일 (Spark·Partnership Ads)',
+      s3m:'별도 협의',
+      pkg:'TikTok 전용 $14,000 | TikTok × IG 패키지 $18,000',
+      vat:'excluded',
+      inc:'TikTok Spark Code, IG Partnership Code',
+      exc:'메타 광고용 별도 편집본, 원본 소스, 브랜드 계정 업로드',
+      notes:'2차 활용 = Spark/Partnership Ads only 기준',
+      photo:null
+    },
+    {
+      id:'i4', batch:'6월_2차', name:'니아', agency:'',
+      platforms:['Instagram','TikTok','YouTube'],
+      ig_url:'', tk_url:'', yt_url:'',
+      price:'2,500만원 (숏폼 3채널 IG+YT+TK)', pnote:'',
+      s1m:'콘텐츠 단가의 30% (온라인 3채널)',
+      s3m:'콘텐츠 단가의 30% (오프라인)',
+      pkg:'IG 피드(이미지) 500만원 | TVC/모델 3개월 2,000만원 | TVC/모델 6개월 3,000만원 | 커머스 라이선스 채널당 10%',
+      vat:'',
+      inc:'',
+      exc:'',
+      notes:'1~2채널 단독 불가 | 공동작업자 별도 문의 | IG 기본 그리드 릴스 노출 불가 | 성명권·영상 제공 추가 협의',
+      photo:null
+    },
+    {
+      id:'i5', batch:'6월_2차', name:'해븐', agency:'자사 전속',
+      platforms:['Instagram'],
+      ig_url:'', tk_url:'', yt_url:'',
+      price:'120만원', pnote:'VAT 별도',
+      s1m:'별도 협의', s3m:'별도 협의', pkg:'',
+      vat:'excluded',
+      inc:'', exc:'',
+      notes:'기획안 필요 시 사전 노티 필수',
+      photo:null
+    },
+    {
+      id:'i6', batch:'6월_2차', name:'채미는채밍', agency:'',
+      platforms:['Instagram'],
+      ig_url:'', tk_url:'', yt_url:'',
+      price:'250만원', pnote:'메인제품 1개 기준 · VAT 별도',
+      s1m:'메타 PA 1채널 +75만원',
+      s3m:'별도 협의',
+      pkg:'서브제품 소구 추가 시 +30만원',
+      vat:'excluded',
+      inc:'서브제품 단순 노출',
+      exc:'2차 활용 기본 미포함',
+      notes:'주주 인상 가능성 有 | 부경권 외 크리에이터 브랜드 협업 시 선확인 필요',
+      photo:null
+    },
+    {
+      id:'i7', batch:'6월_2차', name:'한겨', agency:'',
+      platforms:['Instagram','TikTok','YouTube'],
+      ig_url:'', tk_url:'', yt_url:'',
+      price:'60만원 (IG 단일)', pnote:'YT 구독자 4만 · TK 0.5만',
+      s1m:'광고 단가의 20% (3개월 단위)',
+      s3m:'광고 단가의 20% (3개월 단위)',
+      pkg:'IG + TK + YT 동시업로드 70만원',
+      vat:'',
+      inc:'', exc:'',
+      notes:'채널 현황: YT 구독자 4만 / TK 0.5만',
+      photo:null
+    }
+  ]
+};
+
+// ── State ──
+let D = (() => { try { const s=localStorage.getItem('inf_dash_v3'); return s?JSON.parse(s):null; } catch(e){} return null; })() || JSON.parse(JSON.stringify(DEFAULTS));
+let batch = 'all';
+let editId = null;
+let imgB64 = null;
+
+function save() { localStorage.setItem('inf_dash_v3', JSON.stringify(D)); }
+
+// ── Render ──
+function render() { renderTabs(); renderStats(); renderGrid(); }
+
+function renderTabs() {
+  const el = document.getElementById('tabs');
+  const btn = el.querySelector('.tab-add');
+  el.querySelectorAll('.tab').forEach(t=>t.remove());
+  const all = document.createElement('div');
+  all.className = 'tab'+(batch==='all'?' on':'');
+  all.textContent = '전체';
+  all.onclick = ()=>selBatch('all');
+  el.insertBefore(all, btn);
+  D.batches.forEach(b => {
+    const t = document.createElement('div');
+    t.className = 'tab'+(batch===b?' on':'');
+    t.textContent = b;
+    t.onclick = ()=>selBatch(b);
+    el.insertBefore(t, btn);
+  });
+}
+
+function filtered() { return batch==='all' ? D.influencers : D.influencers.filter(i=>i.batch===batch); }
+
+function renderStats() {
+  const list = filtered();
+  const cnt = {};
+  D.influencers.forEach(i=>{ cnt[i.batch]=(cnt[i.batch]||0)+1; });
+  let html = `
+    <div class="stat"><div class="stat-l">현재 화면</div><div class="stat-v">${list.length}명</div><div class="stat-s">${batch==='all'?'전체 배치':batch}</div></div>
+    <div class="stat"><div class="stat-l">총 등록</div><div class="stat-v">${D.influencers.length}명</div><div class="stat-s">${D.batches.length}개 배치</div></div>
+  `;
+  D.batches.forEach(b=>{
+    html+=`<div class="stat"><div class="stat-l">${b}</div><div class="stat-v">${cnt[b]||0}명</div><div class="stat-s">견적 등록</div></div>`;
+  });
+  document.getElementById('stats').innerHTML = html;
+}
+
+function platBadge(p, url) {
+  let cls='', label='';
+  if(p==='Instagram'){cls='b-ig';label='📷 IG';}
+  else if(p==='TikTok'){cls='b-tk';label='🎵 TK';}
+  else if(p==='YouTube'){cls='b-yt';label='▶ YT';}
+  else return '';
+  if(url) return `<a href="${url}" target="_blank" rel="noopener" class="bdg ${cls} bdg-link">${label}</a>`;
+  return `<span class="bdg ${cls}">${label}</span>`;
+}
+function vatBadge(v) {
+  if(v==='excluded') return '<span class="bdg b-vat-x">VAT 별도</span>';
+  if(v==='included') return '<span class="bdg b-vat-o">VAT 포함</span>';
+  if(v==='3.3%') return '<span class="bdg b-vat-3">3.3% 공제</span>';
+  return '';
+}
+function initials(n) { return (n||'?').slice(0,2); }
+function gradStyle(id) {
+  const idx = parseInt((id||'0').replace(/\D/g,''),10) % GRADS.length;
+  return GRADS[idx]||GRADS[0];
+}
+
+function renderGrid() {
+  const list = filtered();
+  if(!list.length) {
+    document.getElementById('grid').innerHTML=`<div class="empty"><div class="empty-ico">📋</div><div>등록된 인플루언서가 없습니다</div><div style="font-size:12px;margin-top:6px">상단 "+ 견적 추가" 버튼을 눌러 추가하세요</div></div>`;
+    return;
+  }
+  document.getElementById('grid').innerHTML = list.map(inf => {
+    const av = inf.photo
+      ? `<div class="av"><img src="${inf.photo}" alt="${inf.name}"></div>`
+      : `<div class="av" style="background:${gradStyle(inf.id)}">${initials(inf.name)}</div>`;
+    const pkgRows = inf.pkg ? inf.pkg.split('|').map(p=>`<div class="pr"><div class="pr-l">${p.trim()}</div></div>`).join('') : '';
+    const firstUrl = inf.ig_url || inf.tk_url || inf.yt_url || '';
+    const nameHtml = firstUrl
+      ? `<a href="${firstUrl}" target="_blank" rel="noopener">${inf.name}</a>`
+      : inf.name;
+    return `
+    <div class="card" id="c_${inf.id}">
+      <div class="ch">
+        ${av}
+        <div class="cn">
+          <div class="cn-name">${nameHtml}</div>
+          ${inf.agency?`<div class="cn-agency">${inf.agency}</div>`:''}
+          <div class="badges">
+            ${inf.platforms.map(p=>platBadge(p, p==='Instagram'?inf.ig_url:p==='TikTok'?inf.tk_url:inf.yt_url)).join('')}
+            <span class="bdg b-batch">${inf.batch}</span>
+            ${vatBadge(inf.vat)}
+          </div>
+        </div>
+        <div class="ca">
+          <button class="btn-ico" onclick="openEdit('${inf.id}')" title="편집">✏️</button>
+          <button class="btn-ico" onclick="delInf('${inf.id}')" title="삭제">🗑️</button>
+        </div>
+      </div>
+
+      <div class="psec">
+        <div class="ptitle">기본 단가</div>
+        <div class="pr pr-hl">
+          <div><div class="pr-l">릴스 1건</div>${inf.pnote?`<div class="pr-note">${inf.pnote}</div>`:''}</div>
+          <div class="pr-a">${inf.price||'—'}</div>
+        </div>
+      </div>
+
+      ${pkgRows?`<div class="psec"><div class="ptitle">패키지 / 기타</div>${pkgRows}</div>`:''}
+
+      ${inf.s1m||inf.s3m?`
+      <div class="psec">
+        <div class="ptitle">2차 활용 (라이선스)</div>
+        ${inf.s1m?`<div class="pr"><div class="pr-l">1개월</div><div class="pr-a">${inf.s1m}</div></div>`:''}
+        ${inf.s3m?`<div class="pr"><div class="pr-l">3개월</div><div class="pr-a">${inf.s3m}</div></div>`:''}
+      </div>`:''}
+
+      ${inf.inc||inf.exc?`<div class="div"></div><div class="inc-exc">${inf.inc?`<div><span class="ic">✓ 포함</span> ${inf.inc}</div>`:''} ${inf.exc?`<div><span class="ec">✗ 미포함</span> ${inf.exc}</div>`:''}</div>`:''}
+      ${inf.notes?`<div class="div"></div><div class="note-box">⚠️ ${inf.notes}</div>`:''}
+    </div>`;
+  }).join('');
+}
+
+// ── Batch ──
+function selBatch(b) { batch=b; render(); }
+function addBatch() {
+  const n = prompt('배치 이름\n예: 7월_1차');
+  if(!n||!n.trim()) return;
+  const name = n.trim();
+  if(D.batches.includes(name)) { toast('이미 존재하는 배치입니다'); return; }
+  D.batches.push(name); save(); selBatch(name);
+}
+
+// ── Add/Edit Modal ──
+function openAdd() {
+  editId=null;
+  document.getElementById('mTitle').textContent='견적 추가';
+  clearForm(); fillBatchSel(); clearImg();
+  document.getElementById('addModal').classList.add('show');
+}
+function openEdit(id) {
+  const inf = D.influencers.find(i=>i.id===id); if(!inf) return;
+  editId=id;
+  document.getElementById('mTitle').textContent='견적 수정';
+  fillBatchSel();
+  document.getElementById('f_name').value=inf.name||'';
+  document.getElementById('f_batch').value=inf.batch||'';
+  document.getElementById('f_agency').value=inf.agency||'';
+  document.getElementById('p_ig').checked=inf.platforms.includes('Instagram');
+  document.getElementById('p_tk').checked=inf.platforms.includes('TikTok');
+  document.getElementById('p_yt').checked=inf.platforms.includes('YouTube');
+  document.getElementById('f_price').value=inf.price||'';
+  document.getElementById('f_pnote').value=inf.pnote||'';
+  document.getElementById('f_s1m').value=inf.s1m||'';
+  document.getElementById('f_s3m').value=inf.s3m||'';
+  document.getElementById('f_pkg').value=inf.pkg||'';
+  document.getElementById('f_vat').value=inf.vat||'';
+  document.getElementById('f_inc').value=inf.inc||'';
+  document.getElementById('f_exc').value=inf.exc||'';
+  document.getElementById('f_notes').value=inf.notes||'';
+  document.getElementById('f_ig_url').value=inf.ig_url||'';
+  document.getElementById('f_tk_url').value=inf.tk_url||'';
+  document.getElementById('f_yt_url').value=inf.yt_url||'';
+  clearImg();
+  document.getElementById('addModal').classList.add('show');
+}
+function closeAdd() { document.getElementById('addModal').classList.remove('show'); clearImg(); }
+
+function fillBatchSel() {
+  document.getElementById('f_batch').innerHTML = D.batches.map(b=>
+    `<option value="${b}"${b===batch&&batch!=='all'?' selected':''}>${b}</option>`
+  ).join('');
+}
+function clearForm() {
+  ['f_name','f_agency','f_price','f_pnote','f_s1m','f_s3m','f_pkg','f_inc','f_exc','f_notes','f_ig_url','f_tk_url','f_yt_url'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('p_ig').checked=true;
+  document.getElementById('p_tk').checked=false;
+  document.getElementById('p_yt').checked=false;
+  document.getElementById('f_vat').value='';
+}
+function saveInf() {
+  const name=document.getElementById('f_name').value.trim();
+  if(!name){toast('이름을 입력하세요');return;}
+  const plats=[];
+  if(document.getElementById('p_ig').checked) plats.push('Instagram');
+  if(document.getElementById('p_tk').checked) plats.push('TikTok');
+  if(document.getElementById('p_yt').checked) plats.push('YouTube');
+  const inf={
+    id: editId||('i'+Date.now()),
+    batch:document.getElementById('f_batch').value,
+    name, agency:document.getElementById('f_agency').value.trim(),
+    platforms:plats.length?plats:['Instagram'],
+    price:document.getElementById('f_price').value.trim(),
+    pnote:document.getElementById('f_pnote').value.trim(),
+    s1m:document.getElementById('f_s1m').value.trim(),
+    s3m:document.getElementById('f_s3m').value.trim(),
+    pkg:document.getElementById('f_pkg').value.trim(),
+    vat:document.getElementById('f_vat').value,
+    inc:document.getElementById('f_inc').value.trim(),
+    exc:document.getElementById('f_exc').value.trim(),
+    notes:document.getElementById('f_notes').value.trim(),
+    ig_url:document.getElementById('f_ig_url').value.trim(),
+    tk_url:document.getElementById('f_tk_url').value.trim(),
+    yt_url:document.getElementById('f_yt_url').value.trim(),
+    photo:imgB64
+  };
+  if(editId) { const idx=D.influencers.findIndex(i=>i.id===editId); if(idx!==-1) D.influencers[idx]=inf; }
+  else D.influencers.push(inf);
+  save(); closeAdd(); render();
+  toast(editId?'수정되었습니다 ✅':'추가되었습니다 ✅');
+}
+function delInf(id) {
+  if(!confirm('삭제하시겠습니까?')) return;
+  D.influencers=D.influencers.filter(i=>i.id!==id);
+  save(); render(); toast('삭제되었습니다');
+}
+
+// ── Image upload ──
+function imgFile(e) { const f=e.target.files[0]; if(f) procImg(f); }
+function dzOver(e) { e.preventDefault(); document.getElementById('dz').classList.add('over'); }
+function dzLeave(e) { document.getElementById('dz').classList.remove('over'); }
+function dzDrop(e) {
+  e.preventDefault(); document.getElementById('dz').classList.remove('over');
+  const f=e.dataTransfer.files[0];
+  if(f&&f.type.startsWith('image/')) procImg(f);
+}
+function procImg(file) {
+  const r=new FileReader();
+  r.onload=e=>{
+    imgB64=e.target.result;
+    document.getElementById('prevImg').src=imgB64;
+    document.getElementById('dz').style.display='none';
+    document.getElementById('upv').style.display='block';
+  };
+  r.readAsDataURL(file);
+}
+function clearImg() {
+  imgB64=null;
+  document.getElementById('dz').style.display='block';
+  document.getElementById('upv').style.display='none';
+  document.getElementById('prevImg').src='';
+  document.getElementById('imgIn').value='';
+  document.getElementById('lbar').style.display='none';
+  document.getElementById('lbarTxt').style.display='none';
+}
+
+// ── Claude API parse ──
+async function analyze() {
+  const key=localStorage.getItem('inf_api_key');
+  if(!key) { toast('먼저 API 키를 설정하세요 (⚙️ 설정)'); openSettings(); return; }
+  if(!imgB64) { toast('이미지를 먼저 업로드하세요'); return; }
+  const btn=document.getElementById('anaBtn');
+  const lb=document.getElementById('lbar');
+  const lt=document.getElementById('lbarTxt');
+  btn.disabled=true; btn.innerHTML='<span class="spin"></span>분석 중...';
+  lb.style.display='block'; lt.style.display='block';
+  try {
+    const b64=imgB64.split(',')[1];
+    const mt=imgB64.split(';')[0].split(':')[1];
+    const res=await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{
+        'Content-Type':'application/json',
+        'x-api-key':key,
+        'anthropic-version':'2023-06-01',
+        'anthropic-dangerous-direct-browser-access':'true'
+      },
+      body:JSON.stringify({
+        model:'claude-haiku-4-5-20251001',
+        max_tokens:1024,
+        messages:[{role:'user',content:[
+          {type:'image',source:{type:'base64',media_type:mt,data:b64}},
+          {type:'text',text:`인플루언서 협업 광고 견적 이메일 스크린샷입니다.
+아래 JSON 형식으로 추출하세요. 없는 정보는 빈 문자열:
+{"name":"인플루언서 이름","agency":"소속사/매니저","platforms":["Instagram","TikTok","YouTube 중 해당"],"price":"릴스 1건 기본단가","pnote":"단가 조건","s1m":"2차활용 1개월 비용","s3m":"2차활용 3개월 비용","pkg":"기타 패키지(여러 개는 | 구분)","vat":"excluded 또는 included 또는 3.3% 또는 빈값","inc":"포함항목","exc":"미포함항목","notes":"특이사항","ig_url":"Instagram URL(있으면)","tk_url":"TikTok URL(있으면)","yt_url":"YouTube URL(있으면)"}
+JSON만 출력하세요.`}
+        ]}]
+      })
+    });
+    if(!res.ok){const e=await res.json();throw new Error(e.error?.message||'API 오류');}
+    const d=await res.json();
+    const txt=d.content[0].text;
+    const m=txt.match(/\{[\s\S]*\}/);
+    if(!m) throw new Error('결과 파싱 실패');
+    const p=JSON.parse(m[0]);
+    if(p.name) document.getElementById('f_name').value=p.name;
+    if(p.agency) document.getElementById('f_agency').value=p.agency;
+    if(p.platforms){
+      document.getElementById('p_ig').checked=p.platforms.includes('Instagram');
+      document.getElementById('p_tk').checked=p.platforms.includes('TikTok');
+      document.getElementById('p_yt').checked=p.platforms.includes('YouTube');
+    }
+    if(p.price) document.getElementById('f_price').value=p.price;
+    if(p.pnote) document.getElementById('f_pnote').value=p.pnote;
+    if(p.s1m) document.getElementById('f_s1m').value=p.s1m;
+    if(p.s3m) document.getElementById('f_s3m').value=p.s3m;
+    if(p.pkg) document.getElementById('f_pkg').value=p.pkg;
+    if(p.vat) document.getElementById('f_vat').value=p.vat;
+    if(p.inc) document.getElementById('f_inc').value=p.inc;
+    if(p.exc) document.getElementById('f_exc').value=p.exc;
+    if(p.notes) document.getElementById('f_notes').value=p.notes;
+    if(p.ig_url) document.getElementById('f_ig_url').value=p.ig_url;
+    if(p.tk_url) document.getElementById('f_tk_url').value=p.tk_url;
+    if(p.yt_url) document.getElementById('f_yt_url').value=p.yt_url;
+    toast('✅ 자동 분석 완료! 내용을 확인 후 저장하세요');
+  } catch(err) {
+    console.error(err);
+    toast('분석 실패: '+err.message);
+  } finally {
+    btn.disabled=false; btn.innerHTML='🔍 자동 분석';
+    lb.style.display='none'; lt.style.display='none';
+  }
+}
+
+// ── Export / Import ──
+function exportData() {
+  const json = JSON.stringify(D, null, 2);
+  const blob = new Blob([json], {type:'application/json'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'influencer-data.json';
+  a.click();
+  URL.revokeObjectURL(url);
+  toast('⬇ 저장 완료 → GitHub에 influencer-data.json도 업로드하세요');
+}
+
+async function loadRemoteData() {
+  try {
+    const res = await fetch('./influencer-data.json?_=' + Date.now());
+    if(!res.ok) return;
+    const data = await res.json();
+    if(data.batches && data.influencers) { D = data; save(); }
+  } catch(e) {}
+}
+
+async function startApp() {
+  await loadRemoteData();
+  render();
+}
+
+function openImport() {
+  document.getElementById('imp_url').value='';
+  document.getElementById('impFileIn').value='';
+  switchImpTab('file');
+  document.getElementById('impModal').classList.add('show');
+}
+function closeImport() { document.getElementById('impModal').classList.remove('show'); }
+
+function switchImpTab(tab) {
+  const isFile = tab==='file';
+  document.getElementById('imp-panel-file').style.display = isFile?'block':'none';
+  document.getElementById('imp-panel-url').style.display  = isFile?'none':'block';
+  document.getElementById('imp-tab-file').style.background = isFile?'var(--primary)':'var(--surface2)';
+  document.getElementById('imp-tab-file').style.color     = isFile?'#fff':'var(--text2)';
+  document.getElementById('imp-tab-url').style.background = isFile?'var(--surface2)':'var(--primary)';
+  document.getElementById('imp-tab-url').style.color      = isFile?'var(--text2)':'#fff';
+}
+
+function applyImport(data) {
+  if(!data.batches||!data.influencers) throw new Error('올바른 형식이 아닙니다');
+  D = data; save(); render(); closeImport();
+  toast('✅ 데이터를 가져왔습니다');
+}
+
+function importFromFile(e) {
+  const file = e.target.files[0]; if(!file) return;
+  const r = new FileReader();
+  r.onload = ev => { try { applyImport(JSON.parse(ev.target.result)); } catch(err){ toast('오류: '+err.message); } };
+  r.readAsText(file);
+}
+
+async function importFromUrl() {
+  const url = document.getElementById('imp_url').value.trim();
+  if(!url){ toast('URL을 입력하세요'); return; }
+  try {
+    const res = await fetch(url);
+    if(!res.ok) throw new Error('URL을 불러올 수 없습니다 ('+res.status+')');
+    applyImport(await res.json());
+  } catch(err){ toast('오류: '+err.message); }
+}
+
+// ── Settings ──
+function openSettings() {
+  document.getElementById('s_key').value=localStorage.getItem('inf_api_key')||'';
+  document.getElementById('s_brand').value=localStorage.getItem('inf_brand')||'';
+  document.getElementById('setModal').classList.add('show');
+}
+function closeSettings() { document.getElementById('setModal').classList.remove('show'); }
+function saveSettings() {
+  const k=document.getElementById('s_key').value.trim();
+  const b=document.getElementById('s_brand').value.trim();
+  if(k) localStorage.setItem('inf_api_key',k);
+  if(b){ localStorage.setItem('inf_brand',b); document.getElementById('hdSub').textContent=b+' · 릴스 광고 소재'; }
+  closeSettings(); toast('설정 저장 완료');
+}
+
+// ── Toast ──
+function toast(msg) {
+  const el=document.getElementById('toast');
+  el.textContent=msg; el.classList.add('show');
+  setTimeout(()=>el.classList.remove('show'),3000);
+}
+
+// ── Init ──
+const savedBrand=localStorage.getItem('inf_brand');
+if(savedBrand) document.getElementById('hdSub').textContent=savedBrand+' · 릴스 광고 소재';
+startApp();
+</script>
+</body>
+</html>
